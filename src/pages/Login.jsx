@@ -11,11 +11,40 @@ function buildLoginUrl() {
   return returnTo ? `${base}?returnTo=${encodeURIComponent(returnTo)}` : base;
 }
 
+function buildAgentBypassUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const returnTo = params.get('returnTo');
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://api.rajchandra.me';
+  const url = new URL(`${apiUrl}/identity/auth/agent-bypass`);
+  if (returnTo) {
+    url.searchParams.set('returnTo', returnTo);
+  }
+  return url.toString();
+}
+
 export default function Login() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const isAgentBypass = params.get('agent_bypass') === 'true';
+    const returnTo = params.get('returnTo');
+    const email = params.get('email');
+
+    if (isAgentBypass) {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://api.rajchandra.me';
+      const bypassUrl = new URL(`${apiUrl}/identity/auth/agent-bypass`);
+      if (returnTo) {
+        bypassUrl.searchParams.set('returnTo', returnTo);
+      }
+      if (email) {
+        bypassUrl.searchParams.set('email', email);
+      }
+      window.location.href = bypassUrl.toString();
+      return;
+    }
+
     if (!loading && user) {
       navigate(user.role === 'admin' ? '/admin/users' : '/profile', { replace: true });
     }
@@ -30,6 +59,7 @@ export default function Login() {
     inactive: 'Your account is inactive. Contact support.',
     blocked: 'Your account has been blocked. Contact support.',
     server: 'Server error during sign-in. Please try again.',
+    unauthorized_email: 'Unauthorized test user email.',
   };
 
   if (loading) {
@@ -130,6 +160,18 @@ export default function Login() {
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
               <span className="google-btn-text">Continue with Google</span>
+            </a>
+
+            {/* Test Agent button */}
+            <a href={buildAgentBypassUrl()} className="agent-btn" id="agent-login-btn">
+              <svg className="agent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="10" rx="2" />
+                <circle cx="12" cy="5" r="2" />
+                <path d="M12 7v4" />
+                <line x1="8" y1="16" x2="8" y2="16" />
+                <line x1="16" y1="16" x2="16" y2="16" />
+              </svg>
+              <span>Continue as Test Agent</span>
             </a>
 
             {/* Footer text */}

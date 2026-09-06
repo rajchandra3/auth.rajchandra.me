@@ -72,3 +72,5 @@ export const adminRevokeSessions = (id) => api.delete(`/identity/admin/users/${i
 export const adminDeleteUser = (id) => api.delete(`/identity/admin/users/${id}`);
 
 export const getGoogleLoginUrl = () => `${API_URL}/identity/auth/google/start`;
+export const agentBypass = (params = {}) =>
+  api.post('/identity/auth/agent-bypass', typeof params === 'string' ? { returnTo: params } : params);
