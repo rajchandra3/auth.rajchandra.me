@@ -10,6 +10,29 @@ export function getRedirectTarget(search) {
   return target.trim();
 }
 
+export function extractDomain(targetUrl) {
+  if (!targetUrl || typeof targetUrl !== 'string') return null;
+  const clean = targetUrl.trim();
+  if (!clean) return null;
+
+  try {
+    const toParse = clean.startsWith('http://') || clean.startsWith('https://')
+      ? clean
+      : `https://${clean}`;
+    const url = new URL(toParse);
+    if (!url.hostname) return null;
+    return url.hostname.toLowerCase();
+  } catch {
+    const match = clean.replace(/^[a-zA-Z]+:\/\//, '').split(/[\/?#:]/)[0];
+    return match ? match.toLowerCase() : null;
+  }
+}
+
+export function getRedirectDomain(search) {
+  const target = getRedirectTarget(search);
+  return target ? extractDomain(target) : null;
+}
+
 export function buildLoginUrl(search, baseUrl = 'https://api.rajchandra.me/identity/auth/google/start') {
   const target = getRedirectTarget(search);
   return target ? `${baseUrl}?returnTo=${encodeURIComponent(target)}` : baseUrl;
