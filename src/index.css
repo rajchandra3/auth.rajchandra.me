@@ -234,7 +234,7 @@
 .login-header {
   text-align: center;
   padding-top: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .login-title {
@@ -250,28 +250,11 @@
   background-clip: text;
 }
 
-.login-domain {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.login-subtitle {
   font-size: 0.875rem;
-  font-weight: 500;
-  color: #a78bfa;
-  letter-spacing: 0.02em;
-}
-
-.domain-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #a78bfa;
-  box-shadow: 0 0 6px #a78bfa;
-  animation: dot-pulse 2.5s ease-in-out infinite;
-}
-
-@keyframes dot-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 6px #a78bfa; }
-  50%       { opacity: 0.6; box-shadow: 0 0 12px #a78bfa; }
+  color: #94a3b8;
+  line-height: 1.45;
+  margin: 0;
 }
 
 /* ── Divider ── */
@@ -279,7 +262,7 @@
   width: 100%;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0.08) 70%, transparent);
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 /* ── Error ── */
@@ -323,7 +306,7 @@
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3);
   will-change: transform;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .google-btn-bg {
@@ -379,8 +362,8 @@
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
-  margin-top: -12px;
-  margin-bottom: 24px;
+  margin-top: 12px;
+  margin-bottom: 0;
 }
 
 .agent-btn:hover {
@@ -402,23 +385,72 @@
   flex-shrink: 0;
 }
 
-/* ── Footer text ── */
-.login-footer {
-  font-size: 0.75rem;
-  color: rgba(148, 163, 184, 0.6);
-  text-align: center;
-  line-height: 1.5;
+/* ── Post-login redirect info & disclosure ── */
+.login-redirect-info {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
 }
 
-/* ── Bottom badge ── */
-.login-badge {
-  margin-top: 20px;
+.redirect-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.redirect-label {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: #a78bfa;
+}
+
+.redirect-url-pill {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.6875rem;
-  color: rgba(148, 163, 184, 0.35);
-  letter-spacing: 0.03em;
+  padding: 6px 10px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  color: #e2e8f0;
+  overflow: hidden;
+}
+
+.redirect-icon {
+  width: 13px;
+  height: 13px;
+  color: #818cf8;
+  flex-shrink: 0;
+}
+
+.redirect-url-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.redirect-disclosure {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  line-height: 1.45;
+  margin: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.redirect-target-name {
+  color: #c4b5fd;
   font-weight: 500;
 }
 

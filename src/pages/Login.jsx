@@ -2,51 +2,35 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { getGoogleLoginUrl } from '../lib/api.js';
+import {
+  getRedirectTarget,
+  buildLoginUrl as formatLoginUrl,
+  buildAgentBypassUrl as formatAgentBypassUrl,
+  isAgentBypassActive,
+  isAutoBypassActive,
+} from '../lib/login-helpers.js';
 
-// Forward ?returnTo from the current URL to the API's OAuth start endpoint
 function buildLoginUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const returnTo = params.get('returnTo');
   const base = getGoogleLoginUrl();
-  return returnTo ? `${base}?returnTo=${encodeURIComponent(returnTo)}` : base;
+  return formatLoginUrl(window.location.search, base);
 }
 
 function buildAgentBypassUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const returnTo = params.get('returnTo');
-  const email = params.get('email');
   const apiUrl = import.meta.env.VITE_API_URL || 'https://api.rajchandra.me';
-  const url = new URL(`${apiUrl}/identity/auth/agent-bypass`);
-  if (returnTo) {
-    url.searchParams.set('returnTo', returnTo);
-  }
-  if (email) {
-    url.searchParams.set('email', email);
-  }
-  return url.toString();
+  return formatAgentBypassUrl(window.location.search, apiUrl);
 }
 
 export default function Login() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
-  const params = new URLSearchParams(window.location.search);
-  const isAgentBypass = params.get('agent_bypass') === 'true';
-  const isAutoBypass = params.get('agent_bypass') === 'auto' || (isAgentBypass && params.get('auto') === 'true');
+  const isAgentBypass = isAgentBypassActive(window.location.search);
+  const isAutoBypass = isAutoBypassActive(window.location.search);
+  const redirectTarget = getRedirectTarget(window.location.search);
 
   useEffect(() => {
     if (isAutoBypass) {
-      const returnTo = params.get('returnTo');
-      const email = params.get('email');
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://api.rajchandra.me';
-      const bypassUrl = new URL(`${apiUrl}/identity/auth/agent-bypass`);
-      if (returnTo) {
-        bypassUrl.searchParams.set('returnTo', returnTo);
-      }
-      if (email) {
-        bypassUrl.searchParams.set('email', email);
-      }
-      window.location.href = bypassUrl.toString();
+      window.location.href = buildAgentBypassUrl();
       return;
     }
 
@@ -55,6 +39,7 @@ export default function Login() {
     }
   }, [user, loading, navigate, isAutoBypass]);
 
+  const params = new URLSearchParams(window.location.search);
   const errorCode = params.get('error');
 
   const errorMessages = {
@@ -132,11 +117,10 @@ export default function Login() {
           <div className="login-card-inner">
             {/* Header */}
             <div className="login-header">
-              <h1 className="login-title">Welcome back</h1>
-              <div className="login-domain">
-                <span className="domain-dot" />
-                rajchandra.me
-              </div>
+              <h1 className="login-title">Sign in</h1>
+              <p className="login-subtitle">
+                Log in with your Google account to continue.
+              </p>
             </div>
 
             {/* Divider */}
@@ -180,20 +164,27 @@ export default function Login() {
               </a>
             )}
 
-            {/* Footer text */}
-            <p className="login-footer">
-              Your unified identity for all connected services
-            </p>
+            {/* Post-login redirect info & disclosure — skipped entirely if no redirect URL is present */}
+            {redirectTarget && (
+              <div className="login-redirect-info" id="login-redirect-info">
+                <div className="redirect-row">
+                  <span className="redirect-label">Post-login redirect</span>
+                  <div className="redirect-url-pill" title={redirectTarget}>
+                    <svg className="redirect-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                      <polyline points="15 3 21 3 21 9" />
+                      <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                    <span className="redirect-url-text">{redirectTarget}</span>
+                  </div>
+                </div>
+                <p className="redirect-disclosure">
+                  By logging in you will be sharing information with{' '}
+                  <span className="redirect-target-name">{redirectTarget}</span>.
+                </p>
+              </div>
+            )}
           </div>
-        </div>
-
-        {/* Bottom badge */}
-        <div className="login-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-          </svg>
-          Protected by Identity Platform v2
         </div>
       </div>
     </div>

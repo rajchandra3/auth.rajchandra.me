@@ -1,80 +1,107 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  getRedirectTarget,
+  buildLoginUrl,
+  buildAgentBypassUrl,
+  isAgentBypassActive,
+  isAutoBypassActive,
+} from '../src/lib/login-helpers.js';
 
-describe('Auth Login Agent Bypass Behavior', () => {
-  function getLoginParams(search) {
-    const params = new URLSearchParams(search);
-    const isAgentBypass = params.get('agent_bypass') === 'true';
-    const isAutoBypass =
-      params.get('agent_bypass') === 'auto' ||
-      (isAgentBypass && params.get('auto') === 'true');
-    const returnTo = params.get('returnTo');
-    const email = params.get('email');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+describe('Auth Login Helpers & Redirect Targeting', () => {
+  test('returns null when no redirect parameter is present', () => {
+    assert.equal(getRedirectTarget(''), null);
+    assert.equal(getRedirectTarget('?foo=bar'), null);
+    assert.equal(getRedirectTarget('?returnTo='), null);
+    assert.equal(getRedirectTarget('?returnTo=   '), null);
+  });
+
+  test('extracts redirect target from returnTo, redirect_to, or redirect', () => {
+    assert.equal(
+      getRedirectTarget('?returnTo=https://finance.rajchandra.me'),
+      'https://finance.rajchandra.me'
+    );
+    assert.equal(
+      getRedirectTarget('?redirect_to=https://portfolio.rajchandra.me'),
+      'https://portfolio.rajchandra.me'
+    );
+    assert.equal(
+      getRedirectTarget('?redirect=https://example.com/app'),
+      'https://example.com/app'
+    );
+  });
+
+  test('buildLoginUrl constructs Google OAuth url with or without returnTo', () => {
+    const base = 'https://api.rajchandra.me/identity/auth/google/start';
+    assert.equal(buildLoginUrl('', base), base);
+    assert.equal(
+      buildLoginUrl('?returnTo=https://finance.rajchandra.me', base),
+      `${base}?returnTo=${encodeURIComponent('https://finance.rajchandra.me')}`
+    );
+  });
+
+  test('buildAgentBypassUrl appends returnTo and email when present', () => {
     const apiUrl = 'https://api.rajchandra.me';
-    let bypassUrl = null;
-    if (isAgentBypass || isAutoBypass) {
-      const url = new URL(`${apiUrl}/identity/auth/agent-bypass`);
-      if (returnTo) url.searchParams.set('returnTo', returnTo);
-      if (email) url.searchParams.set('email', email);
-      bypassUrl = url.toString();
-    }
-
-    return {
-      isAgentBypass,
-      isAutoBypass,
-      bypassUrl,
-    };
-  }
-
-  test('normal user navigation hides the agent login button', () => {
-    const { isAgentBypass, isAutoBypass } = getLoginParams('');
-    assert.equal(isAgentBypass, false, 'Agent login button must be hidden for normal users');
-    assert.equal(isAutoBypass, false, 'Should not auto-redirect');
-  });
-
-  test('normal user redirect with returnTo hides the agent login button', () => {
-    const { isAgentBypass, isAutoBypass } = getLoginParams('?returnTo=https://finance.rajchandra.me');
-    assert.equal(isAgentBypass, false, 'Agent login button must be hidden when returnTo is present without agent_bypass=true');
-    assert.equal(isAutoBypass, false, 'Should not auto-redirect');
-  });
-
-  test('falsy or invalid agent_bypass values hide the button', () => {
-    assert.equal(getLoginParams('?agent_bypass=false').isAgentBypass, false);
-    assert.equal(getLoginParams('?agent_bypass=1').isAgentBypass, false);
-    assert.equal(getLoginParams('?agent_bypass=null').isAgentBypass, false);
-  });
-
-  test('agent_bypass=true displays the agent login button without auto-redirecting', () => {
-    const { isAgentBypass, isAutoBypass, bypassUrl } = getLoginParams(
-      '?agent_bypass=true&returnTo=example.com'
-    );
-    assert.equal(isAgentBypass, true, 'Agent login button must be shown when agent_bypass=true');
-    assert.equal(isAutoBypass, false, 'Must not auto-redirect so the user/agent can see and click the button');
     assert.equal(
-      bypassUrl,
-      'https://api.rajchandra.me/identity/auth/agent-bypass?returnTo=example.com'
+      buildAgentBypassUrl('?agent_bypass=true', apiUrl),
+      'https://api.rajchandra.me/identity/auth/agent-bypass'
     );
-  });
-
-  test('agent_bypass=true with email preserves email in bypass url', () => {
-    const { isAgentBypass, isAutoBypass, bypassUrl } = getLoginParams(
-      '?agent_bypass=true&returnTo=https://finance.rajchandra.me&email=custom-agent@rajchandra.me'
-    );
-    assert.equal(isAgentBypass, true);
-    assert.equal(isAutoBypass, false);
     assert.equal(
-      bypassUrl,
-      'https://api.rajchandra.me/identity/auth/agent-bypass?returnTo=https%3A%2F%2Ffinance.rajchandra.me&email=custom-agent%40rajchandra.me'
-    );
-  });
-
-  test('agent_bypass=auto triggers auto-redirect', () => {
-    const { isAutoBypass, bypassUrl } = getLoginParams('?agent_bypass=auto&returnTo=https://finance.rajchandra.me');
-    assert.equal(isAutoBypass, true, 'Should trigger auto-redirect when explicit auto bypass is requested');
-    assert.equal(
-      bypassUrl,
+      buildAgentBypassUrl('?agent_bypass=true&returnTo=https://finance.rajchandra.me', apiUrl),
       'https://api.rajchandra.me/identity/auth/agent-bypass?returnTo=https%3A%2F%2Ffinance.rajchandra.me'
     );
+    assert.equal(
+      buildAgentBypassUrl(
+        '?agent_bypass=true&returnTo=https://finance.rajchandra.me&email=agent@rajchandra.me',
+        apiUrl
+      ),
+      'https://api.rajchandra.me/identity/auth/agent-bypass?returnTo=https%3A%2F%2Ffinance.rajchandra.me&email=agent%40rajchandra.me'
+    );
+  });
+
+  test('isAgentBypassActive gates button strictly on agent_bypass=true', () => {
+    assert.equal(isAgentBypassActive(''), false);
+    assert.equal(isAgentBypassActive('?agent_bypass=false'), false);
+    assert.equal(isAgentBypassActive('?agent_bypass=auto'), false);
+    assert.equal(isAgentBypassActive('?agent_bypass=true'), true);
+  });
+
+  test('isAutoBypassActive detects agent_bypass=auto or agent_bypass=true&auto=true', () => {
+    assert.equal(isAutoBypassActive(''), false);
+    assert.equal(isAutoBypassActive('?agent_bypass=true'), false);
+    assert.equal(isAutoBypassActive('?agent_bypass=auto'), true);
+    assert.equal(isAutoBypassActive('?agent_bypass=true&auto=true'), true);
+  });
+});
+
+describe('Login.jsx Template Requirements', () => {
+  const loginJsxPath = path.resolve(__dirname, '../src/pages/Login.jsx');
+  const source = fs.readFileSync(loginJsxPath, 'utf8');
+
+  test('does not contain "Welcome back"', () => {
+    assert.equal(source.includes('Welcome back'), false);
+  });
+
+  test('does not contain app name in header/domain', () => {
+    assert.equal(source.includes('login-domain'), false);
+    assert.equal(source.includes('rajchandra.me</span>'), false);
+  });
+
+  test('does not contain security or identity platform v2 mentions', () => {
+    assert.equal(source.includes('Protected by Identity Platform'), false);
+    assert.equal(source.includes('login-badge'), false);
+    assert.equal(source.toLowerCase().includes('security'), false);
+  });
+
+  test('contains clear sign-in guidance and conditional sharing disclosure', () => {
+    assert.match(source, /Sign in/);
+    assert.match(source, /Log in with your Google account/);
+    assert.match(source, /By logging in you will be sharing information with/);
   });
 });
