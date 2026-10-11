@@ -14,10 +14,14 @@ function buildLoginUrl() {
 function buildAgentBypassUrl() {
   const params = new URLSearchParams(window.location.search);
   const returnTo = params.get('returnTo');
+  const email = params.get('email');
   const apiUrl = import.meta.env.VITE_API_URL || 'https://api.rajchandra.me';
   const url = new URL(`${apiUrl}/identity/auth/agent-bypass`);
   if (returnTo) {
     url.searchParams.set('returnTo', returnTo);
+  }
+  if (email) {
+    url.searchParams.set('email', email);
   }
   return url.toString();
 }
@@ -26,13 +30,14 @@ export default function Login() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const isAgentBypass = params.get('agent_bypass') === 'true';
-    const returnTo = params.get('returnTo');
-    const email = params.get('email');
+  const params = new URLSearchParams(window.location.search);
+  const isAgentBypass = params.get('agent_bypass') === 'true';
+  const isAutoBypass = params.get('agent_bypass') === 'auto' || (isAgentBypass && params.get('auto') === 'true');
 
-    if (isAgentBypass) {
+  useEffect(() => {
+    if (isAutoBypass) {
+      const returnTo = params.get('returnTo');
+      const email = params.get('email');
       const apiUrl = import.meta.env.VITE_API_URL || 'https://api.rajchandra.me';
       const bypassUrl = new URL(`${apiUrl}/identity/auth/agent-bypass`);
       if (returnTo) {
@@ -48,9 +53,8 @@ export default function Login() {
     if (!loading && user) {
       navigate(user.role === 'admin' ? '/admin/users' : '/profile', { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, isAutoBypass]);
 
-  const params = new URLSearchParams(window.location.search);
   const errorCode = params.get('error');
 
   const errorMessages = {
@@ -162,17 +166,19 @@ export default function Login() {
               <span className="google-btn-text">Continue with Google</span>
             </a>
 
-            {/* Test Agent button */}
-            <a href={buildAgentBypassUrl()} className="agent-btn" id="agent-login-btn">
-              <svg className="agent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="10" rx="2" />
-                <circle cx="12" cy="5" r="2" />
-                <path d="M12 7v4" />
-                <line x1="8" y1="16" x2="8" y2="16" />
-                <line x1="16" y1="16" x2="16" y2="16" />
-              </svg>
-              <span>Continue as Test Agent</span>
-            </a>
+            {/* Test Agent button — only shown if agent_bypass is true in url query param */}
+            {isAgentBypass && (
+              <a href={buildAgentBypassUrl()} className="agent-btn" id="agent-login-btn">
+                <svg className="agent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="10" rx="2" />
+                  <circle cx="12" cy="5" r="2" />
+                  <path d="M12 7v4" />
+                  <line x1="8" y1="16" x2="8" y2="16" />
+                  <line x1="16" y1="16" x2="16" y2="16" />
+                </svg>
+                <span>Continue as Test Agent</span>
+              </a>
+            )}
 
             {/* Footer text */}
             <p className="login-footer">
