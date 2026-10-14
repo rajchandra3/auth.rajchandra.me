@@ -87,108 +87,269 @@
 .login-root {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #080a12;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #060810;
   position: relative;
-  overflow: hidden;
-  padding: 24px;
+  overflow-x: hidden;
+  color: #f8fafc;
 }
 
-/* ── Ambient background ── */
+/* ── Ambient background lighting ── */
 .login-bg {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
 }
 
-.orb {
+.stage-glow {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 720px;
+  height: 520px;
+  background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.04) 45%, transparent 72%);
+  filter: blur(50px);
+}
+
+.stage-rings {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 760px;
+  height: 760px;
   border-radius: 50%;
-  filter: blur(90px);
-  animation: orb-drift 24s ease-in-out infinite;
+  border: 1px solid rgba(255, 255, 255, 0.025);
+  box-shadow: 0 0 0 140px rgba(255, 255, 255, 0.008);
 }
 
-.orb-1 {
-  width: 480px;
-  height: 480px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.10) 0%, transparent 70%);
-  top: -140px;
-  left: -120px;
+/* ── Top Shell Header ── */
+.auth-shell-header {
+  position: relative;
+  z-index: 20;
+  height: 58px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(6, 8, 16, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
-.orb-2 {
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
-  bottom: -120px;
-  right: -100px;
-  animation-duration: 20s;
-  animation-delay: -8s;
+.shell-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  letter-spacing: -0.01em;
 }
 
-@keyframes orb-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50%       { transform: translate(20px, -15px) scale(1.04); }
+.shell-brand-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  color: #a5b4fc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* ── Card container ── */
-.login-card-wrap {
+.shell-brand-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.shell-brand-title {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.shell-brand-sep {
+  color: #475569;
+}
+
+.shell-brand-sub {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.shell-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.6875rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.status-ping {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+  animation: ping-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes ping-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.9); }
+}
+
+/* ── Central Stage & Card ── */
+.login-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
   position: relative;
   z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   width: 100%;
-  max-width: 410px;
 }
 
 .login-card {
   width: 100%;
-  background: rgba(15, 20, 32, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  max-width: 430px;
+  background: rgba(13, 17, 28, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 20px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.03) inset,
-    0 24px 48px -12px rgba(0, 0, 0, 0.7);
-  animation: card-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    0 1px 0 0 rgba(255, 255, 255, 0.12) inset,
+    0 28px 64px -16px rgba(0, 0, 0, 0.85);
+  animation: card-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes card-in {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(12px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .login-card-inner {
-  padding: 36px 32px 32px;
+  padding: 38px 32px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
 }
 
-/* ── Brand mark ── */
-.auth-brand-mark {
-  margin-bottom: 20px;
+/* ── Visual Handshake ── */
+.auth-handshake {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  width: 100%;
 }
 
-.auth-icon-badge {
+.handshake-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 140px;
+}
+
+.handshake-node-icon {
   width: 46px;
   height: 46px;
   border-radius: 12px;
-  background: rgba(99, 102, 241, 0.12);
-  border: 1px solid rgba(129, 140, 248, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.handshake-node-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.identity-node {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.22) 0%, rgba(139, 92, 246, 0.14) 100%);
+  border: 1px solid rgba(129, 140, 248, 0.32);
+  color: #a5b4fc;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.18);
+}
+
+.app-node {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(20, 184, 166, 0.12) 100%);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: #6ee7b7;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.14);
+}
+
+.handshake-node-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #94a3b8;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.handshake-connector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 56px;
+  margin-top: -18px; /* aligns with icon center */
+}
+
+.connector-track {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(129, 140, 248, 0.4) 0%, rgba(52, 211, 153, 0.5) 100%);
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+}
+
+.connector-arrow {
+  width: 14px;
+  height: 14px;
+  color: rgba(52, 211, 153, 0.7);
+  flex-shrink: 0;
+}
+
+/* ── Standalone Identity Mark (direct visit) ── */
+.auth-brand-mark {
+  margin-bottom: 22px;
+}
+
+.auth-brand-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(129, 140, 248, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #a5b4fc;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
 }
 
-.auth-brand-icon {
-  width: 22px;
-  height: 22px;
+.auth-brand-badge svg {
+  width: 24px;
+  height: 24px;
 }
 
 /* ── Header ── */
@@ -202,7 +363,7 @@
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.025em;
-  color: #ffffff;
+  color: #f8fafc;
   line-height: 1.25;
   margin-bottom: 8px;
   word-break: break-word;
@@ -246,7 +407,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Login action CTAs only ── */
+/* ── Login Action CTAs Only ── */
 .login-actions {
   width: 100%;
   display: flex;
@@ -261,32 +422,36 @@
   justify-content: center;
   gap: 12px;
   width: 100%;
-  padding: 13px 20px;
-  border-radius: 10px;
+  height: 48px;
+  border-radius: 12px;
   background: #ffffff;
-  color: #1e293b;
+  color: #0f172a;
   font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  font-weight: 550;
+  letter-spacing: -0.01em;
   text-decoration: none;
   border: 1px solid #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), 0 3px 8px rgba(0, 0, 0, 0.1);
-  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
 }
 
 .google-btn:hover {
   background: #f8fafc;
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.18),
+    0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .google-btn:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.99);
 }
 
 .google-icon {
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
   flex-shrink: 0;
 }
 
@@ -303,8 +468,8 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 11px 18px;
-  border-radius: 10px;
+  height: 42px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #cbd5e1;
@@ -330,19 +495,56 @@
 }
 
 /* ── Data sharing disclosure (domain only) ── */
-.login-disclosure {
+.login-disclosure-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 22px;
+  width: 100%;
   font-size: 0.75rem;
   color: #64748b;
-  line-height: 1.55;
-  margin-top: 20px;
-  margin-bottom: 0;
-  width: 100%;
-  text-align: center;
+  line-height: 1.5;
+}
+
+.disclosure-icon {
+  width: 14px;
+  height: 14px;
+  color: #818cf8;
+  flex-shrink: 0;
+}
+
+.disclosure-text {
+  margin: 0;
+  word-break: break-word;
 }
 
 .domain-emphasis {
   color: #cbd5e1;
   font-weight: 600;
+}
+
+/* ── Bottom Shell Footer ── */
+.auth-shell-footer {
+  position: relative;
+  z-index: 20;
+  height: 48px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(6, 8, 16, 0.4);
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.footer-meta {
+  color: #64748b;
+}
+
+.footer-copy {
+  color: #475569;
 }
 
 /* ── Spinner ── */
@@ -362,12 +564,39 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 480px) {
+@media (max-width: 640px) {
+  .auth-shell-header {
+    padding: 0 20px;
+    height: 52px;
+  }
+
+  .auth-shell-footer {
+    padding: 0 20px;
+    height: 42px;
+    font-size: 0.6875rem;
+  }
+
+  .login-stage {
+    padding: 24px 16px;
+  }
+
   .login-card-inner {
-    padding: 32px 24px 28px;
+    padding: 32px 22px 26px;
   }
 
   .login-title {
-    font-size: 1.375rem;
+    font-size: 1.3125rem;
+  }
+
+  .handshake-node {
+    max-width: 110px;
+  }
+
+  .handshake-node-label {
+    max-width: 100px;
+  }
+
+  .handshake-connector {
+    width: 40px;
   }
 }
