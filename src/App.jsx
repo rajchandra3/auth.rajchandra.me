@@ -12,7 +12,7 @@ import UserDetail from './pages/admin/UserDetail.jsx';
 
 function Layout({ children }) {
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-ink-bg text-ink-primary">
       <Navbar />
       <main>{children}</main>
     </div>

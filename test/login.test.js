@@ -119,3 +119,56 @@ describe('Login.jsx Impeccable Trust Requirements', () => {
     assert.equal(source.includes('{redirectTarget}'), false);
   });
 });
+
+describe('Unslop Craft & Design System Invariants', () => {
+  const readSrc = (relPath) =>
+    fs.readFileSync(path.resolve(__dirname, '..', relPath), 'utf8');
+
+  const indexCss = readSrc('src/index.css');
+  const loginJsx = readSrc('src/pages/Login.jsx');
+  const navbarJsx = readSrc('src/components/Navbar.jsx');
+  const profileJsx = readSrc('src/pages/Profile.jsx');
+  const usersJsx = readSrc('src/pages/admin/Users.jsx');
+  const userDetailJsx = readSrc('src/pages/admin/UserDetail.jsx');
+
+  test('removes radial color blobs, decorative rings, pulsing glows, and transition-all from index.css and Login.jsx', () => {
+    assert.equal(indexCss.includes('stage-glow'), false);
+    assert.equal(indexCss.includes('stage-rings'), false);
+    assert.equal(indexCss.includes('ping-pulse'), false);
+    assert.equal(indexCss.includes('transition: all'), false);
+    assert.equal(loginJsx.includes('stage-glow'), false);
+    assert.equal(loginJsx.includes('connector-pulse'), false);
+    assert.equal(loginJsx.includes('disclosure-icon'), false);
+  });
+
+  test('unifies brand breadcrumb across Login.jsx and Navbar.jsx without legacy @auth mark', () => {
+    assert.equal(navbarJsx.includes('@</span>auth'), false);
+    assert.match(navbarJsx, /rajchandra\.me/);
+    assert.match(navbarJsx, /identity/);
+  });
+
+  test('enforces sentence-case headings and eliminates uppercase tracking-wider across authenticated views', () => {
+    for (const [name, content] of [
+      ['Profile.jsx', profileJsx],
+      ['Users.jsx', usersJsx],
+      ['UserDetail.jsx', userDetailJsx],
+    ]) {
+      assert.equal(content.includes('uppercase'), false, `${name} should not contain uppercase class`);
+      assert.equal(content.includes('tracking-wider'), false, `${name} should not contain tracking-wider class`);
+    }
+  });
+
+  test('replaces stale MongoDB ID label with Record ID and eliminates native browser alert() calls', () => {
+    assert.equal(userDetailJsx.includes('MongoDB ID'), false);
+    assert.match(userDetailJsx, /Record ID/);
+    assert.equal(usersJsx.includes('alert('), false);
+    assert.equal(userDetailJsx.includes('alert('), false);
+  });
+
+  test('applies tabular-nums to numeric figures, dates, and IDs across Profile, Users, and UserDetail', () => {
+    assert.match(profileJsx, /tabular-nums/);
+    assert.match(usersJsx, /tabular-nums/);
+    assert.match(userDetailJsx, /tabular-nums/);
+  });
+});
+

@@ -7,8 +7,8 @@ export default function AdminRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-ink-bg flex items-center justify-center">
+        <div className="spinner-ring" />
       </div>
     );
   }

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { getGoogleLoginUrl } from '../lib/api.js';
 import {
-  getRedirectTarget,
   getRedirectDomain,
   buildLoginUrl as formatLoginUrl,
   buildAgentBypassUrl as formatAgentBypassUrl,
@@ -64,17 +63,11 @@ export default function Login() {
 
   return (
     <div className="login-root">
-      {/* Ambient background lighting */}
-      <div className="login-bg" aria-hidden="true">
-        <div className="stage-glow" />
-        <div className="stage-rings" />
-      </div>
-
-      {/* Top Shell Header (Desktop / Tablet) */}
+      {/* Top Shell Header */}
       <header className="auth-shell-header">
         <div className="shell-brand">
-          <div className="shell-brand-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="shell-brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
@@ -99,7 +92,7 @@ export default function Login() {
               <div className="auth-handshake" aria-label={`Sign in connecting to ${redirectDomain}`}>
                 <div className="handshake-node" title="Raj Chandra Identity">
                   <div className="handshake-node-icon identity-node">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                     </svg>
@@ -108,29 +101,27 @@ export default function Login() {
                 </div>
 
                 <div className="handshake-connector" aria-hidden="true">
-                  <div className="connector-track">
-                    <div className="connector-pulse" />
-                  </div>
-                  <svg className="connector-arrow" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06z" />
+                  <div className="connector-track" />
+                  <svg className="connector-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 3.5L10.5 8 6 12.5" />
                   </svg>
                 </div>
 
                 <div className="handshake-node" title={redirectDomain}>
                   <div className="handshake-node-icon app-node">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10" />
                       <line x1="2" y1="12" x2="22" y2="12" />
                       <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                     </svg>
                   </div>
-                  <span className="handshake-node-label">{redirectDomain}</span>
+                  <span className="handshake-node-label font-mono">{redirectDomain}</span>
                 </div>
               </div>
             ) : (
               <div className="auth-brand-mark">
                 <div className="auth-brand-badge" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
@@ -146,7 +137,7 @@ export default function Login() {
               <p className="login-subtitle">
                 {redirectDomain
                   ? `You came from ${redirectDomain} and will be redirected back after signing in.`
-                  : 'Log in with your Google account to continue.'}
+                  : 'Sign in with your Google account to continue'}
               </p>
             </div>
 
@@ -156,12 +147,12 @@ export default function Login() {
             {/* Error banner */}
             {errorCode && (
               <div className="login-error" role="alert">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" y1="8" x2="12" y2="12" />
                   <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-                {errorMessages[errorCode] || 'Sign-in failed. Please try again.'}
+                <span>{errorMessages[errorCode] || 'Sign-in failed. Please try again.'}</span>
               </div>
             )}
 
@@ -180,7 +171,7 @@ export default function Login() {
               {/* Test Agent button — only shown if agent_bypass is true in url query param */}
               {isAgentBypass && (
                 <a href={buildAgentBypassUrl()} className="agent-btn" id="agent-login-btn">
-                  <svg className="agent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <svg className="agent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <rect x="3" y="11" width="18" height="10" rx="2" />
                     <circle cx="12" cy="5" r="2" />
                     <path d="M12 7v4" />
@@ -195,10 +186,6 @@ export default function Login() {
             {/* Inform that basic profile details will be shared with domain of the URL only (not full path) */}
             {redirectDomain && (
               <div className="login-disclosure-box" id="login-disclosure">
-                <svg className="disclosure-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
                 <p className="disclosure-text">
                   By signing in, you will be sharing basic profile details with{' '}
                   <span className="domain-emphasis">{redirectDomain}</span>.

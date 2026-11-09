@@ -24,9 +24,9 @@ export default function Callback() {
   }, [navigate, setUser]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-3">
-      <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-      <p className="text-slate-500 text-sm">Signing you in…</p>
+    <div className="min-h-screen bg-ink-bg flex flex-col items-center justify-center gap-3">
+      <div className="spinner-ring" />
+      <p className="text-ink-muted text-sm">Signing you in</p>
     </div>
   );
 }
