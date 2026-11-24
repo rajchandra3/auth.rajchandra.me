@@ -1,0 +1,20 @@
+{
+  "name": "auth-rajchandra-me",
+  "compatibility_date": "2025-11-01",
+  "main": "./worker/index.js",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/healthz", "/version.json", "/", "/index.html"]
+  },
+  "routes": [
+    {
+      "pattern": "auth.rajchandra.me/*",
+      "zone_name": "rajchandra.me"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
